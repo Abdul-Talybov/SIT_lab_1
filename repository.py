@@ -9,13 +9,11 @@ class PackageRepository:
     def add_package(self, name: str, version: str, deps: Optional[List[str]] = None):
         self.repo.setdefault(name, {})[version] = deps or []
 
-    def available_versions(self, name: str) -> List[str]:
-        return list(self.repo.get(name, {}).keys())
-
     def best_available(self, name: str) -> Optional[str]:
-        versions = self.available_versions(name)
-        if not versions: return None
-        return max(versions, key=functools.cmp_to_key(lambda a,b: compare_versions(a,b)))
+        versions = list(self.repo.get(name, {}).keys())
+        if not versions:
+            return None
+        return max(versions, key=functools.cmp_to_key(compare_versions))
 
     def get_deps(self, name: str, version: str) -> List[str]:
         return self.repo.get(name, {}).get(version, [])

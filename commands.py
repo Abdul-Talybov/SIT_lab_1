@@ -32,7 +32,7 @@ class UpdateCommand(Command):
     def execute(self) -> None:
         self.manager.update(self.spec)
     def undo(self) -> None:
-        print("[UNDO] Отмена обновления не поддерживается.")
+        print("[UNDO] Отмена обновления не поддерживается")
 
 class ListCommand(Command):
     def __init__(self, manager: PackageManager):

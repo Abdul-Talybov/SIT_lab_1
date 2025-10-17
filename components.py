@@ -18,15 +18,13 @@ class PackageLeaf(PackageComponent):
         self._deps = deps or []
 
     def name(self) -> str:
-        return self.pkg_spec.split("==",1)[0] if "==" in self.pkg_spec else self.pkg_spec
+        return self.pkg_spec.split("==")[0]
 
     def version(self) -> Optional[str]:
-        if "==" in self.pkg_spec:
-            return self.pkg_spec.split("==",1)[1]
-        return None
+        return self.pkg_spec.split("==")[1] if "==" in self.pkg_spec else None
 
     def dependencies(self) -> List[str]:
-        return list(self._deps)
+        return self._deps
 
     def install(self, manager: PackageManager) -> None:
         manager.install(self.pkg_spec)
@@ -34,19 +32,13 @@ class PackageLeaf(PackageComponent):
     def remove(self, manager: PackageManager) -> None:
         manager.remove(self.pkg_spec)
 
-    def __repr__(self):
-        return f"PackageLeaf({self.pkg_spec})"
-
 class PackageGroup(PackageComponent):
-    def __init__(self, group_name: str):
-        self.group_name = group_name
+    def __init__(self, name: str):
+        self.group_name = name
         self.children: List[PackageComponent] = []
 
     def add(self, comp: PackageComponent) -> None:
         self.children.append(comp)
-
-    def remove_child(self, comp: PackageComponent) -> None:
-        self.children.remove(comp)
 
     def name(self) -> str:
         return self.group_name
@@ -64,6 +56,3 @@ class PackageGroup(PackageComponent):
     def remove(self, manager: PackageManager) -> None:
         for c in reversed(self.children):
             c.remove(manager)
-
-    def __repr__(self):
-        return f"PackageGroup({self.group_name}, children={self.children})"
