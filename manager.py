@@ -8,12 +8,12 @@ class PackageManager:
         self.repo = repo
         self.installed: Dict[str, str] = {}
 
-    def _split(self, spec: str) -> Tuple[str, Optional[str]]:
+    def _split(self, spec: str):
         if "==" in spec:
             return tuple(spec.split("==", 1))
         return spec, None
 
-    def install(self, spec: str) -> None:
+    def install(self, spec: str):
         name, ver = self._split(spec)
         if not ver:
             ver = self.repo.best_available(name)
@@ -31,7 +31,7 @@ class PackageManager:
         self.installed[name] = ver
         print(f"[OK] Установлен {name}=={ver}")
 
-    def remove(self, spec: str) -> None:
+    def remove(self, spec: str):
         name, _ = self._split(spec)
         # Проверка зависимостей
         dependents = [p for p,v in self.installed.items() if name in [d.split("==")[0] for d in self.repo.get_deps(p,v)]]
@@ -44,7 +44,7 @@ class PackageManager:
         else:
             print(f"[INFO] {name} не установлен")
 
-    def update(self, spec: str) -> None:
+    def update(self, spec: str):
         name, _ = self._split(spec)
         if name not in self.installed:
             print(f"[ERROR] {name} не установлен")
@@ -55,11 +55,11 @@ class PackageManager:
         else:
             print(f"[INFO] Нет обновления для {name}")
 
-    def list_installed(self) -> None:
+    def list_installed(self):
         for n,v in sorted(self.installed.items()):
             print(f" - {n}=={v}")
 
-    def show_tree(self) -> None:
+    def show_tree(self):
         def _print(name: str, level: int):
             ver = self.installed.get(name, "?")
             print("  "*level + f"- {name}=={ver}")
