@@ -1,44 +1,19 @@
-# main.py
-from repository import PackageRepository
-from manager import PackageManager
-from commands import InstallCommand, RemoveCommand, UpdateCommand, ListCommand, UndoCommand
+from manager import *
+if __name__ == "__main__":
+    # Создание структуры пакетов
+    core = PackageGroup("Core")
+    core.add(Package("LibA"))
+    core.add(Package("LibB"))
 
-repo = PackageRepository()
-repo.add_package("C", "1.0", [])
-repo.add_package("B", "1.0", ["C==1.0"])
-repo.add_package("A", "1.0", ["B==1.0"])
-repo.add_package("C", "2.0", [])
-repo.add_package("B", "2.0", ["C==2.0"])
-repo.add_package("A", "2.0", ["B==2.0"])
-repo.add_package("D", "1.0", ["C==1.0"])
-repo.add_package("E", "1.0", ["C==2.0"])
+    app = PackageGroup("AppSuite")
+    app.add(core)
+    app.add(Package("UI"))
+    app.add(Package("CLI"))
 
-pm = PackageManager(repo)
+    # Менеджер и команды
+    manager = PackageManager()
 
-print("=== Установка A==1.0 ===")
-InstallCommand(pm, "A==1.0").execute()  # C=1.0 → B=1.0 → A=1.0
-
-print("\n=== Установка D==1.0 ===")
-InstallCommand(pm, "D==1.0").execute()  # C=1.0
-
-print("\n=== Попытка E==1.0 (конфликт) ===")
-InstallCommand(pm, "E==1.0").execute()  # ТРЕБУЕТ C==2.0 → КОНФЛИКТ!
-
-print("\n=== Список ===")
-ListCommand(pm).execute()
-
-print("\n=== Обновление A до 2.0 ===")
-UpdateCommand(pm, "A==2.0").execute()  # Нужно C=2.0 → конфликт?
-
-print("\n=== Удаление D ===")
-RemoveCommand(pm, "D").execute()
-
-print("\n=== Повторное обновление A ===")
-UpdateCommand(pm, "A==2.0").execute()  # Теперь можно!
-
-print("\n=== Дерево зависимостей ===")
-pm.show_tree()
-
-print("\n=== Отмена последней команды ===")
-UndoCommand(pm).execute()
-pm.show_tree()
+    manager.execute_command(DisplayCommand(app))
+    manager.execute_command(InstallCommand(app))
+    manager.execute_command(UpdateCommand(Package("UI")))
+    manager.execute_command(RemoveCommand(core))
